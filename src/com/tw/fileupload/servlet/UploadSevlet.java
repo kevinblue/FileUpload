@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
 
+import com.tw.fileupload.DataSource.ERPDataSource;
 import com.tw.fileupload.bean.FileUploadBean;
 import com.tw.fileupload.utils.FileUploadAppProperties;
 
@@ -37,7 +40,9 @@ import com.tw.fileupload.utils.FileUploadAppProperties;
 
 public class UploadSevlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String File_PATH="/WEB-INF/files/";   
+	private static final String File_PATH="/WEB-INF/files/";  
+	
+	private static final String Temp_PATH="E:\\tempDirectory";   
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -56,7 +61,7 @@ public class UploadSevlet extends HttpServlet {
 		request.setCharacterEncoding("utf-8");
 		ServletFileUpload upload = getServletFileUpload();
 		//upload.setFileSizeMax();
-		
+		String path="";
 		try {
 			//把需要上传的FileItem都放入到该Map中
 			//键：文件待 存放的路径 ，值：对应的FileItem对象对
@@ -74,18 +79,79 @@ public class UploadSevlet extends HttpServlet {
 			//4进行文件的上传操作
 			 upload(uploadFiles);
 			//5.吧上传的信息保存到数据库中
-		    saveFileUploadBeans(beans);
+		    saveFileBeans(beans);
+		    
+		    
+		    //6删除临时文件夹的 FileUtils
+		 //   FileUtils.deleteDirectory(new File(Temp_PATH));
+		    path="app/success.jsp";
 		} catch (Exception e) {
 			e.printStackTrace();
+			
+			 path="app/upload.jsp";
+			 request.setAttribute("message", e.getMessage());
 		}
+		
+		request.getRequestDispatcher(path).forward(request, response);
 		
 	
 	}
 
-private void saveFileUploadBeans(List<FileUploadBean> beans) {
+private void saveFileBeans(List<FileUploadBean> beans) {
 		// TODO Auto-generated method stub
+	System.out.println("保存");
+	ERPDataSource erp=new ERPDataSource();
+	System.out.println(erp.toString());
+	
+	savebeans(beans);
 		
 	}
+
+
+
+private void savebeans(List<FileUploadBean> beans) {
+	
+	for(FileUploadBean filebean:  beans){
+		String fileName=filebean.getFileName();
+		String filePath=filebean.getFilePath();
+		String fileDesc=filebean.getFileDesc();
+		
+		Map<String ,String> param=new HashMap<String ,String>();
+		param.put("fileName", fileName);
+		param.put("filePath", filePath);
+		param.put("fileDesc", fileDesc);
+		
+		 String sqlstr = getsqlstr(param);		 
+		 saveFile(sqlstr);
+		 System.out.println(sqlstr);
+	}
+}
+
+public void saveFile(String sqlstr){
+	ERPDataSource erp=new ERPDataSource();
+	 try {
+		erp.executeUpdate(sqlstr);
+		erp.close();
+	} catch (SQLException e) {
+		
+		e.printStackTrace();
+	}finally{
+		erp.close();
+	}
+}
+
+private String getsqlstr(Map<String, String> param) {
+	String column="";
+	 String values="";
+	 String sqlstr="";
+	 for(String key:param.keySet()){
+		   if(column.length()>0){column+=",";values+=",";}
+	       column+=key;
+		   values+="'"+param.get(key)+"'";
+	    }
+	 sqlstr="insert into base_file ("+column+") values ("+values+");";
+	return sqlstr;
+}
 
 
 /**
@@ -138,11 +204,15 @@ private List<FileUploadBean> buildFileUploadBeans(List<FileItem> items, Map<Stri
 	
 	Map<String ,String> descs=new HashMap<String ,String>();
 	
+
+//	try
+	
+		
+	
 	for(FileItem item: items){
 		if(item.isFormField()){
 			String fieldName=item.getFieldName();
-			String desc=item.getString("UTF-8");
-			
+			String desc=item.getString("UTF-8");			
 			 descs.put(item.getFieldName(), desc);	
 		}
 	   
@@ -164,6 +234,7 @@ private List<FileUploadBean> buildFileUploadBeans(List<FileItem> items, Map<Stri
 		}
 	   
 	}
+	
 	//2在遍历FileItem的集合，得到文件域的FileItem对象。
 	//妹得到一个FileItem对象都创建一个FileUploadBean对象
 	//得到filename,构建filepath，从1的map中得到当前FileItem对应的那个desc
@@ -194,7 +265,7 @@ private String getFilePath(String fileName) {
 	    String totalfilemaxsize =FileUploadAppProperties.getInstance().getProperty("total.file.max.size");
 		DiskFileItemFactory factory=new DiskFileItemFactory();
 		factory.setSizeThreshold(1025*500);		
-		File tempDirectory=new File("d:\\tempDirectory");
+		File tempDirectory=new File(Temp_PATH);
 		factory.setRepository(tempDirectory);
 		
 		ServletFileUpload upload=new ServletFileUpload(factory);

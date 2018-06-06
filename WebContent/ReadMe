@@ -1,0 +1,25 @@
+1.进行文件上传，
+1）请求方式为post:
+2)使用file的表单域：<input type="file" name="file"/>
+3)使用新的编码方式： multipart/form-data  表示表单以二进制的方式传送
+  <form action="uploadServlet"  method="post" enctype="multipart/form-data">
+  例子：
+  <form action="uploadServlet"  method="post" enctype="multipart/form-data">
+        File:<input type="file" name="file"/>
+        <input type="submit" value="submit"/> 
+     
+   </form>
+   
+   4）关于enctype:
+   >application/x-wwww-form-urlencoded:表单enctype属性的默认值。这种编码方案使用有线的字符集，当使用非字母和数字时，必须使用
+   " %HH"代替（H 代表十六进制数字）。对于大容量的二进制数据或者包含非ASCII字符的文本来说。这种编码不能满足要求
+   > multipart/form-data  表示表单以二进制的方式传送
+   5)服务端：
+   1)不能使用request.getParameter()等方式获取请求信息，因为请求的编码方式已经改为multipart/form-data，以 二进制的方式
+   提交请求信息
+   
+   
+   
+   抽取方法的
+   
+   refacter --extact method private

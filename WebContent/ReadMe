@@ -23,3 +23,14 @@
    抽取方法的
    
    refacter --extact method private
+   
+   
+   ==================
+   问题：
+   每次获取都得到的是工作路径下的.metadata下的项目路径？如以下路径：“E:\DropBox\Dropbox\workspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\reportManage\WEB-INF”。希望各位大神指示下。！
+感谢各位大神们的帮助，我也明白了一些。发现，我的ide是eclipse，服务器是tomcat 6 ，每次启动tomcat时。我的项目都会发布到： \.metadata\.plugins\org.eclipse.wst.server.core\tmp2\wtpwebapps\reportManage\WEB-INF 。这个目录下。但这个目录似乎是临时目录。
+网上查了下资料，说是可能是用了tomcat插件，的确我这个eclipse用了tomcat插件，但是并未使用插件来启动项目啊？
+还希望大神们能继续帮助！
+   
+   解答：
+   这个请求路径不是你的源码路径，而是服务器加载后生成的，你可以去服务器文件夹下看看

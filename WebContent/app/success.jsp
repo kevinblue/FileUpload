@@ -7,8 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-    <a href="upload.jsp">文件上传</a>
-    <br>
-    <a href="download.jsp">文件下载</a>
+      上传成功！
 </body>
 </html>

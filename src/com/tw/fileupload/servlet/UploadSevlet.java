@@ -84,7 +84,7 @@ public class UploadSevlet extends HttpServlet {
 		    
 		    //6删除临时文件夹的 FileUtils
 		 //   FileUtils.deleteDirectory(new File(Temp_PATH));
-		    path="app/success.jsp";
+		    path="/app/success.jsp";
 		} catch (Exception e) {
 			e.printStackTrace();
 			
@@ -194,8 +194,6 @@ private void vaidateExtName(List<FileUploadBean> beans) {
 		
 	}
 
-
-
 private List<FileUploadBean> buildFileUploadBeans(List<FileItem> items, Map<String, FileItem> uploadFiles) throws UnsupportedEncodingException {
 		//1遍历FileItem的集合，先得到desc的Map<String,String>,其中键：fileName(desc1,desc2...),
 	//值表单域对应字段的值
@@ -212,7 +210,8 @@ private List<FileUploadBean> buildFileUploadBeans(List<FileItem> items, Map<Stri
 	for(FileItem item: items){
 		if(item.isFormField()){
 			String fieldName=item.getFieldName();
-			String desc=item.getString("UTF-8");			
+			String desc=item.getString("UTF-8");
+			System.out.println(desc);
 			 descs.put(item.getFieldName(), desc);	
 		}
 	   
@@ -245,7 +244,8 @@ private List<FileUploadBean> buildFileUploadBeans(List<FileItem> items, Map<Stri
 
 
 private String getFilePath(String fileName) {
-     String extName=fileName.substring(fileName.lastIndexOf(".")+1);
+     String extName=fileName.substring(fileName.lastIndexOf("."));
+     System.out.println(extName);
      Random random=new Random();
        int radnum=random.nextInt(100000);
        //F:\testlyf\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\FileUpload\WEB-INF\files\152828083375725746.txt
